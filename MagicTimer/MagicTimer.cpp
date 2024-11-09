@@ -41,33 +41,27 @@ Timer& Timer::reset()
 	return *this;
 }
 
-std::optional<std::chrono::nanoseconds> Timer::getTimeDelta(const std::chrono::high_resolution_clock::time_point& start,
-															const std::chrono::high_resolution_clock::time_point& end,
-															const DurationFormat& format) const
+std::optional<double> Timer::getTimeDelta(const std::chrono::high_resolution_clock::time_point& start,
+										  const std::chrono::high_resolution_clock::time_point& end,
+										  const DurationFormat& format) const
 {
-	std::chrono::nanoseconds duration;
+	double duration = (double)std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 	switch (format)
 	{
 		case NANOSECONDS:
-			duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
 			break;
 		case MICROSECONDS:
-			duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+			duration /= 1000;
 			break;
 		case MILLISECONDS:
-			duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+			duration /= 1000000;
 			break;
 		case SECONDS:
-			duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+			duration /= 1000000000;
 			break;
 		case MINUTES:
-			duration = std::chrono::duration_cast<std::chrono::minutes>(end - start);
-			break;
-		case HOURS:
-			duration = std::chrono::duration_cast<std::chrono::hours>(end - start);
-			break;
-		case DAYS:
-			duration = std::chrono::duration_cast<std::chrono::days>(end - start);
+			duration = (double)std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+			duration /= 60;
 			break;
 		default:
 			std::cout << "Unable to calculate duration, please provide a valid duration format \n";
@@ -76,26 +70,21 @@ std::optional<std::chrono::nanoseconds> Timer::getTimeDelta(const std::chrono::h
 	return duration;
 }
 
-std::optional<int64_t> Timer::getTimerCount(const DurationFormat& format) const
+std::optional<double> Timer::getTimerCount(const DurationFormat& format) const
 {
 	std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-	std::optional<std::chrono::nanoseconds> duration = getTimeDelta(this->startTime, now, format);
-	if (duration.has_value())
-	{
-		int64_t timeValue = duration.value().count();
-		return timeValue;
-	}
-	return std::nullopt;
+	std::optional<double> timerCount = getTimerCount(this->startTime, now, format);
+	return timerCount;
 }
 
-std::optional<int64_t> Timer::getTimerCount(const std::chrono::high_resolution_clock::time_point& start,
-											const std::chrono::high_resolution_clock::time_point& end,
-											const DurationFormat& format) const
+std::optional<double> Timer::getTimerCount(const std::chrono::high_resolution_clock::time_point& start,
+										   const std::chrono::high_resolution_clock::time_point& end,
+										   const DurationFormat& format) const
 {
-	std::optional<std::chrono::nanoseconds> duration = getTimeDelta(start, end, format);
+	std::optional<double> duration = getTimeDelta(start, end, format);
 	if (duration.has_value())
 	{
-		int64_t timeValue = duration.value().count();
+		double timeValue = duration.value();
 		return timeValue;
 	}
 	return std::nullopt;
@@ -121,12 +110,6 @@ std::string Timer::durationFormatToStr(const DurationFormat& format) const
 		case MINUTES:
 			durationFormatStr = "minutes";
 			break;
-		case HOURS:
-			durationFormatStr = "hours";
-			break;
-		case DAYS:
-			durationFormatStr = "days";
-			break;
 		default:
 			durationFormatStr = "unknown";
 	}
@@ -135,19 +118,12 @@ std::string Timer::durationFormatToStr(const DurationFormat& format) const
 
 const Timer& Timer::printTime(const DurationFormat& format) const
 {
-	std::optional<uint64_t> time = getTimerCount(format);
-	if (time.has_value())
-	{
-		std::cout << "Duration: " << time.value() << " " << durationFormatToStr(format) << "\n";
-	}
-	else
-	{
-		std::cout << "Duration unknown \n";
-	}
+	std::optional<double> time = getTimerCount(format);
+	printTime(time, format);
 	return *this;
 }
 
-const Timer& Timer::printTime(const std::optional<int64_t>& time, const DurationFormat& format) const
+void Timer::printTime(const std::optional<double>& time, const DurationFormat& format) const
 {
 	if (time.has_value())
 	{
@@ -157,5 +133,4 @@ const Timer& Timer::printTime(const std::optional<int64_t>& time, const Duration
 	{
 		std::cout << "Duration unknown \n";
 	}
-	return *this;
 }

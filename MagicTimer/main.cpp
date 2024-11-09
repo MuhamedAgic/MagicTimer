@@ -38,19 +38,37 @@ int main()
 {
 	Timer t = Timer();
 	t.start();
-	std::cout << "Hello MagicTimer" << std::endl;
+	std::cout << "Hello MagicTimer" << std::endl << std::endl;
 	t.stop().printTime(DurationFormat::NANOSECONDS);
+
 
 	int a;
 	t.reset().start();
 	t.timeIt([&]() { a = someFunc(10); }, DurationFormat::MICROSECONDS);
-	std::cout << "Result: " << a << "\n";
+	std::cout << "Result: " << a << "\n\n";
+
+
+	t.timeIt([]() {
+		SomeClass a;
+		int b = a.someFuncInClass(10);
+		std::cout << "Result: " << b << "\n\n";
+		}, DurationFormat::SECONDS);
 
 	t.timeIt([]() { 
 		SomeClass a;
-		a.someFuncInClass(10); 
-	}, DurationFormat::SECONDS); // debug
+		int b = a.someFuncInClass(10); 
+		std::cout << "Result: " << b << "\n\n";
+	}, DurationFormat::MINUTES);
 
+
+	t.reset().start();
+	std::cout << "\nDo something..." << std::endl;
+	t.printTime(DurationFormat::MICROSECONDS);
+	std::cout << "Do something again..." << std::endl;
+	t.printTime(DurationFormat::MICROSECONDS);
+	std::cout << "And again..." << std::endl;
+	t.printTime(DurationFormat::MICROSECONDS);
+	t.stop().reset();
 
 	return 0;
 }
