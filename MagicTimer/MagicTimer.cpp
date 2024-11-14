@@ -2,7 +2,7 @@
 
 Timer::Timer()
 {
-	this->state = TimerState::STOPPED;
+	reset();
 }
 
 void Timer::start()
@@ -21,7 +21,7 @@ Timer& Timer::stop()
 	this->endTime = std::chrono::high_resolution_clock::now();
 	if (this->state != TimerState::RUNNING)
 	{
-		std::cout << "Timer not running \n";
+		std::cout << "Timer was not running, end time set to now \n";
 	}
 	this->state = TimerState::STOPPED;
 	return *this;
@@ -36,12 +36,12 @@ void Timer::restart()
 Timer& Timer::reset()
 {
 	this->startTime = std::chrono::high_resolution_clock::now();
-	this->endTime = startTime;
+	this->endTime = this->startTime;
 	this->state = TimerState::STOPPED;
 	return *this;
 }
 
-std::optional<double> Timer::getTimeDelta(const std::chrono::high_resolution_clock::time_point& start,
+std::expected<double, std::string> Timer::getTimeDelta(const std::chrono::high_resolution_clock::time_point& start,
 										  const std::chrono::high_resolution_clock::time_point& end,
 										  const DurationFormat& format) const
 {
@@ -64,33 +64,32 @@ std::optional<double> Timer::getTimeDelta(const std::chrono::high_resolution_clo
 			duration /= 60;
 			break;
 		default:
-			std::cout << "Unable to calculate duration, please provide a valid duration format \n";
-			return std::nullopt;
+			return std::unexpected("Unable to calculate duration, please provide a valid duration format \n");
 	}
 	return duration;
 }
 
-std::optional<double> Timer::getTimerCount(const DurationFormat& format) const
+std::expected<double, std::string> Timer::getTimerCount(const DurationFormat& format) const
 {
 	std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-	std::optional<double> timerCount = getTimerCount(this->startTime, now, format);
+	std::expected<double, std::string> timerCount = getTimerCount(this->startTime, now, format);
 	return timerCount;
 }
 
-std::optional<double> Timer::getTimerCount(const std::chrono::high_resolution_clock::time_point& start,
+std::expected<double, std::string> Timer::getTimerCount(const std::chrono::high_resolution_clock::time_point& start,
 										   const std::chrono::high_resolution_clock::time_point& end,
 										   const DurationFormat& format) const
 {
-	std::optional<double> duration = getTimeDelta(start, end, format);
+	std::expected<double, std::string> duration = getTimeDelta(start, end, format);
 	if (duration.has_value())
 	{
 		double timeValue = duration.value();
 		return timeValue;
 	}
-	return std::nullopt;
+	return std::unexpected("Error in calculating time!");
 }
 
-std::string Timer::durationFormatToStr(const DurationFormat& format) const
+std::expected<std::string, std::string> Timer::durationFormatToStr(const DurationFormat& format) const
 {
 	std::string durationFormatStr = "";
 	switch (format)
@@ -111,26 +110,30 @@ std::string Timer::durationFormatToStr(const DurationFormat& format) const
 			durationFormatStr = "minutes";
 			break;
 		default:
-			durationFormatStr = "unknown";
+			return std::unexpected("Unexpected DurationFormat Error");
 	}
 	return durationFormatStr;
 }
 
 const Timer& Timer::printTime(const DurationFormat& format) const
 {
-	std::optional<double> time = getTimerCount(format);
+	std::expected<double, std::string> time = getTimerCount(format);
 	printTime(time, format);
 	return *this;
 }
 
-void Timer::printTime(const std::optional<double>& time, const DurationFormat& format) const
+void Timer::printTime(const std::expected<double, std::string>& time, const DurationFormat& format) const
 {
-	if (time.has_value())
+	if (!time.has_value())
 	{
-		std::cout << "Duration: " << time.value() << " " << durationFormatToStr(format) << "\n";
+		std::println("Unable to print elapsed time. Error {}", time.error());
+		return;
 	}
-	else
+
+	std::expected<std::string, std::string> durationFormat = durationFormatToStr(format);
+	if (!durationFormat.has_value())
 	{
-		std::cout << "Duration unknown \n";
+		std::println("Unable to print elapsed time. Error: {}", durationFormat.error());
 	}
+	std::println("Duration: {} {} \n", time.value(), *durationFormat);
 }
