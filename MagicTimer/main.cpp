@@ -3,7 +3,26 @@
 #include <vector>
 #include <print>
 #include <ranges>
+#include <cstdlib>
 #include "MagicTimer.h"
+
+//#include "rust/cxx.h"
+//#include "rust_practice_lab/src/lib.rs.h"
+
+struct Item
+{
+	int value;
+	int weight;
+};
+
+Item generateRandomItem()
+{
+	Item i;
+	i.weight = rand() % 100;
+	i.value = rand() % 100;
+	return i;
+}
+
 
 long someFunc(int someNumber)
 {
@@ -68,15 +87,24 @@ void printVector(const std::vector<T>& vector)
 	{
 		if (i != 0 && i != vector.size())
 		{
-			std::print(", ");
+			std::cout << ", ";
 		}
 		std::cout << vector[i];
 	}
-	std::println("");
+	std::cout << "\n";
 }
+
 
 int main()
 {
+	std::cout << "Testing Rust functions! \n";
+	//hello();
+	//counting_until(50);
+	//uint64_t fibo_rec = fibonacci_recursive(5);
+	//uint64_t fibo_it = fibonacci_iterative(5);
+	//std::cout << "A: " << fibo_rec << ", B: " << fibo_it << std::endl;
+
+
 	Timer t = Timer();
 
 
@@ -138,10 +166,10 @@ int main()
 
 	std::cout << "********** Test 10 On Std Functions ********** \n";
 	std::vector<int> vec = { 5, 3, 4, 1, 2 };
-	std::print("Vector: ");
+	std::cout << "Vector: ";
 	printVector(vec);
 	t.timeIt(DurationFormat::NANOSECONDS, std::ranges::sort, vec.begin(), vec.end());
-	std::print("Sorted vector: ");
+	std::cout << "Sorted vector: ";
 	printVector(vec);
 
 

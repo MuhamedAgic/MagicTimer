@@ -48,7 +48,7 @@ public:
 	* @param format The duration format (seconds, milliseconds, etc.)
 	**/
 	template<typename Func, typename... Args>
-	auto timeIt(const DurationFormat& format, Func&& func, Args&&... args) -> InvokeResult<Func, Args...>
+	InvokeResult<Func, Args...> timeIt(const DurationFormat& format, Func&& func, Args&&... args)
 	{
 		// check returntype of invocable at compile time
 		if constexpr (std::is_void_v<decltype(std::invoke(std::forward<Func>(func), std::forward<Args>(args)...))>)

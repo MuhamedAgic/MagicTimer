@@ -1,7 +1,4 @@
-﻿# CMakeList.txt : CMake project for MagicTimer, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.8)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -15,7 +12,7 @@ project ("MagicTimer")
 add_executable (MagicTimer "MagicTimer.cpp" "MagicTimer.h" "main.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET MagicTimer PROPERTY CXX_STANDARD 26)
+  set_property(TARGET MagicTimer PROPERTY CXX_STANDARD 23)
 endif()
 
 # TODO: Add tests and install targets if needed.

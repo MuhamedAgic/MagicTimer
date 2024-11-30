@@ -126,14 +126,14 @@ void Timer::printTime(const std::expected<double, std::string>& time, const Dura
 {
 	if (!time.has_value())
 	{
-		std::println("Unable to print elapsed time. Error {}", time.error());
+		std::cout << "Unable to print elapsed time. Error " << time.error();
 		return;
 	}
 
 	std::expected<std::string, std::string> durationFormat = durationFormatToStr(format);
 	if (!durationFormat.has_value())
 	{
-		std::println("Unable to print elapsed time. Error: {}", durationFormat.error());
+		std::cout << "Unable to print elapsed time. Error: " << durationFormat.error();
 	}
-	std::println("Duration: {} {} \n", time.value(), *durationFormat);
+	std::cout << "Duration: " << time.value() << " " << * durationFormat << "\n";
 }
